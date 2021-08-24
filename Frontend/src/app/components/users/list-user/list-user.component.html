@@ -1,0 +1,154 @@
+<!-- Container-fluid starts-->
+<p-toast></p-toast>
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-header">
+            <h5>Gérer Utilisateurs</h5>
+        </div>
+        <div class="card-body">        
+<div class="card">
+
+    <p-toolbar styleClass="p-mb-4">
+        <ng-template pTemplate="left">
+            <button pButton pRipple label="Nouveau" icon="pi pi-plus" class="p-button-success p-mr-2" (click)="openNew()"></button>
+            <button pButton pRipple label="Effacer" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelecteds()" [disabled]="!selectedDatas || !selectedDatas.length"></button>
+        </ng-template>
+    </p-toolbar>
+
+    <p-table #dt [value]="datas" [rows]="10" [paginator]="true" [globalFilterFields]="['nom','reference','gsm']"
+        [(selection)]="selectedDatas" [rowHover]="true" dataKey="_id" styleClass="p-datatable-responsive-demo"
+        currentPageReportTemplate="Affichage de {first} à {last} entrées sur {totalRecords}" [showCurrentPageReport]="true">
+        <ng-template pTemplate="caption">
+            <div class="p-d-flex p-ai-center p-jc-between">
+                <h5 class="p-m-0">Gérer</h5>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="nom">Nom <p-sortIcon field="nom"></p-sortIcon></th>
+                <th pSortableColumn="prenom">Prénom <p-sortIcon field="prenom"></p-sortIcon></th>
+                <th pSortableColumn="reference">Réference <p-sortIcon field="reference"></p-sortIcon></th>
+                <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+                <th pSortableColumn="gsm">Gsm <p-sortIcon field="gsm"></p-sortIcon></th>
+                <th pSortableColumn="dateDeNaissance">Date De Naissance <p-sortIcon field="dateDeNaissance"></p-sortIcon></th>
+                <th pSortableColumn="streetAddress">Adresse <p-sortIcon field="streetAddress"></p-sortIcon></th>
+                <th pSortableColumn="province">Province <p-sortIcon field="province"></p-sortIcon></th>
+
+                <th pSortableColumn="role">role <p-sortIcon field="role"></p-sortIcon></th>
+
+                <th pSortableColumn="nomOrganisme">nomOrganisme <p-sortIcon field="nomOrganisme"></p-sortIcon></th>
+                <th pSortableColumn="create_date">Date de creation  <p-sortIcon field="create_date"></p-sortIcon></th>
+                <th pSortableColumn="update_date">Dernière mise à jour  <p-sortIcon field="update_date"></p-sortIcon></th>
+          
+
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-data>
+            <tr>
+                <td>
+                    <p-tableCheckbox [value]="data"></p-tableCheckbox>
+                </td>
+                <td>{{data.nom}}</td>
+                <td>{{data.prenom}}</td>
+                <td>{{data.reference}}</td>
+                <td>{{data.email}}</td>
+                <td>{{data.gsm}}</td>
+             
+                <td>{{data.dateDeNaissance}}</td>
+                <td>{{data.streetAddress}}</td>
+                <td>{{data.province}}</td>
+
+                <td>{{data.role}}</td>
+
+
+                <td>{{data?.organisme?.nomOrganisme}}</td>
+
+                <td>{{data.create_date | date: 'dd/MM/yyyy hh:mm' }}</td>
+                <td>{{data.update_date | date: 'dd/MM/yyyy hh:mm' }}</td>
+
+               
+                <td>
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" (click)="edit(data)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="delete(data)"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div class="p-d-flex p-ai-center p-jc-between">
+                Au total, il y a {{datas ? datas.length : 0 }} .
+            </div>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="dataDialog" [style]="{width: '450px'}" header="User Details" [modal]="true" [maximizable]="true"  styleClass="p-fluid"
+[breakpoints]="{'960px': '75vw'}"  [baseZIndex]="10000" 
+    [draggable]="false" 
+>
+    <ng-template pTemplate="content">
+        
+        <div class="p-field">
+            <label for="role">Role</label>
+            <p-dropdown [options]="roles" [(ngModel)]="data.role"  id='role' autofocus ></p-dropdown>
+        </div>
+
+        <div class="p-field" *ngIf="data.role=='Organisme'"> 
+            <label for="organisme"> Organisme </label>
+            <p-dropdown  *ngIf="data?.organisme?._id"  placeholder="Veuillez selectionner Organisme" [options]="dataOrganisme" [(ngModel)]="data.organisme._id"   optionLabel='nomOrganisme' optionValue='_id' id='organisme' autofocus ></p-dropdown>
+            <p-dropdown *ngIf="!data?.organisme?._id"  placeholder="Veuillez selectionner Organisme" [options]="dataOrganisme" [(ngModel)]="data.organisme"   optionLabel='nomOrganisme' optionValue='_id' id='organisme' autofocus ></p-dropdown>
+    
+        </div>
+
+      
+
+        <div class="p-field">
+            <label for="banned">can login?:{{data.banned}}</label>
+            <p-inputSwitch [(ngModel)]="data.banned" id='banned'  ></p-inputSwitch>
+        </div>   
+        <div class="p-field">
+            <label for="nom">Nom</label>
+            <input type="text" pInputText id="nom" [(ngModel)]="data.nom" required autofocus />
+            <small class="p-invalid" *ngIf="submitted && !data.nom">Nom est requis.</small>
+        </div>
+
+        <div class="p-field">
+            <label for="prenom">Prénom</label>
+            <input type="text" pInputText id="prenom" [(ngModel)]="data.prenom" required autofocus />
+            <small class="p-invalid" *ngIf="submitted && !data.prenom">Prénom est requis.</small>
+        </div>
+
+        <div class="p-field">
+            <label for="reference">Réference</label>
+            <input type="text" pInputText id="reference" [(ngModel)]="data.reference" required autofocus />
+            <small class="p-invalid" *ngIf="submitted && !data.reference">Réference est requis.</small>
+        </div>
+
+        <div class="p-field">
+            <label for="email">Email</label>
+            <input type="text" pInputText id="email" [(ngModel)]="data.email"  autofocus />
+  
+        </div>
+
+
+
+    </ng-template>
+    
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="save()" [disabled]="!(data.nom && data.prenom &&data.reference) "> </button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+         
+        </div>
+    </div>
+</div>
